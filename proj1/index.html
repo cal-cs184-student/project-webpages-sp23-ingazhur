@@ -2,6 +2,228 @@
 	<head>
 	</head>
 	<body>
-		Project 1 here
+		<h3 id="task-1-20-pts-">Task 1 (20 pts)</h3>
+<ul>
+<li><strong>Walk through how you rasterize triangles in your own words.</strong><br><br></li>
+</ul>
+<p>I modified the <code>RasterizerImp::rasterize_triangle()</code> function in <code>rasterizer.cpp</code>. I looped over the pixels inside a bounding box of the triangle and checked whether the pixel belongs to it by doing a three line test. Then if it belongs to the triangle, I would call the <code>fill_pixel()</code> function. Here is my three line test:</p>
+<pre><code class="lang-cpp"><span class="hljs-function"><span class="hljs-keyword">bool</span> <span class="hljs-title">is_inside_triangle</span><span class="hljs-params">(
+<span class="hljs-keyword">int</span> i, <span class="hljs-keyword">int</span> j,
+<span class="hljs-keyword">float</span> x0, <span class="hljs-keyword">float</span> y0,
+<span class="hljs-keyword">float</span> x1, <span class="hljs-keyword">float</span> y1,
+<span class="hljs-keyword">float</span> x2, <span class="hljs-keyword">float</span> y2)</span>
+</span>{
+
+<span class="hljs-comment">// check if the current pixel is inside the triangle</span>
+<span class="hljs-comment">// perform the three line test</span>
+
+<span class="hljs-keyword">bool</span> check1 = ((i - x0)*(y0 - y1) &gt;= (j - y0)*(x0 - x1));
+<span class="hljs-keyword">bool</span> check2 = ((i - x1)*(y1 - y2) &gt;= (j - y1)*(x1 - x2));
+<span class="hljs-keyword">bool</span> check3 = ((i - x2)*(y2 - y0) &gt;= (j - y2)*(x2 - x0));
+
+<span class="hljs-comment">// account for both winding directions, if triangle has normals pointing in opposite directions</span>
+<span class="hljs-keyword">return</span> (check1 &amp;&amp; check2 &amp;&amp; check3) || (!check1 &amp;&amp; !check2 &amp;&amp; !check3);
+
+}
+</code></pre>
+<ul>
+<li><strong>Explain how your algorithm is no worse than one that checks each sample within the bounding box of the triangle.</strong><br><br></li>
+</ul>
+<p>As explained in the previous bullet point, my algorithm pretty much checks every single point within the bounding box, and then saves it into the sample buffer through the <code>fill_pixel()</code> function if the pixel is inside the triangle.</p>
+<ul>
+<li><strong>Show a png screenshot of basic/test4.svg with the default viewing parameters and with the pixel inspector centered on an interesting part of the scene.</strong><br><br></li>
+</ul>
+<p><img src="screenshots/task1.png" alt="" title="basic/test4.svg"></p>
+<h3 id="task-2-20-pts-">Task 2 (20 pts)</h3>
+<ul>
+<li><strong>Walk through your supersampling algorithm and data structures. Why is supersampling useful? What modifications did you make to the rasterization pipeline in the process? Explain how you used supersampling to antialias your triangles.</strong><br><br></li>
+</ul>
+<p>For my supersampling algorithm,</p>
+<ol>
+<li>I iterated over all the pixels in the bounding rectangle.</li>
+<li>Then, I supersampled each of these pixels (for sample_rate = 4, each pixel was sampled 4 times) and added them into a resized sample_buffer (for temporary memory). Similar to the Task 1, if the mini pixel is inside the triangle, then I color it. I implemented this in <code>rasterize_triangle()</code> function.</li>
+<li>Then, within the <code>resolve_to_framebuffer</code> function, I iterated over the pixels and computed the average value of mini-pixels, and then colored the target buffer pixels with the resulting averaged color. </li>
+</ol>
+<p>Supersampling is useful because it helps us get rid of the jaggies by blurring the high-frequency areas with an averaged colors.</p>
+<ul>
+<li><strong>Show png screenshots of basic/test4.svg with the default viewing parameters and sample rates 1, 4, and 16 to compare them side-by-side. Position the pixel inspector over an area that showcases the effect dramatically; for example, a very skinny triangle corner. Explain why these results are observed.</strong><br><br></li>
+</ul>
+<p>sample_rate = 1:
+<img src="screenshots/task2_1.png" alt=""></p>
+<p>sample_rate = 4:
+<img src="screenshots/task2_4.png" alt=""></p>
+<p>sample_rate = 16:
+<img src="screenshots/task2_16.png" alt=""></p>
+<p>After comparing these images, we can see that for sample_rate = 4, the sharper edge became more blurry, and therefore, the entire triangle became more continuous. This is expected, according to the algorithm described above. However, something that I noticed is that the images for sample rates 4 and 16 look identical.</p>
+<h3 id="task-3-10-pts-">Task 3 (10 pts)</h3>
+<ul>
+<li><strong>Create an updated version of svg/transforms/robot.svg with cubeman doing something more interesting, like waving or running. Feel free to change his colors or proportions to suit your creativity. Save your svg file as my_robot.svg in your docs/ directory and show a png screenshot of your rendered drawing in your write-up. Explain what you were trying to do with cubeman in words.</strong></br></br></li>
+</ul>
+<p><code>my_robot.svg</code> is saved under the docs/directory. Some of things that I modified: </p>
+<ol>
+<li>changed the color of the torso and legs by modifying the hex value of the corresponding attributes</li>
+<li>rotated and translated the joins of both arms.</li>
+</ol>
+<p><code>robot.svg</code>:
+<img src="screenshots/robot.png" alt=""></p>
+<p><code>my_robot.svg</code>:
+<img src="screenshots/my_robot.png" alt=""></p>
+<h3 id="task-4-10-pts-">Task 4 (10 pts)</h3>
+<ul>
+<li><strong>Explain barycentric coordinates in your own words and use an image to aid you in your explanation. One idea is to use a svg file that plots a single triangle with one red, one green, and one blue vertex, which should produce a smoothly blended color triangle.</strong></br></br></li>
+</ul>
+<p>Barycentric coordinates allow you representing a point in a triangle using a set of three points and different weights. </p>
+<ul>
+<li><strong>Show a png screenshot of svg/basic/test7.svg with default viewing parameters and sample rate 1. If you make any additional images with color gradients, include them.</strong></br></br></li>
+</ul>
+<p><code>svg/basic/test7.svg</code>:</p>
+<p><img src="screenshots/task4.png" alt=""></p>
+<h3 id="task-5-15-pts-">Task 5 (15 pts)</h3>
+<ul>
+<li><strong>Explain pixel sampling in your own words and describe how you implemented it to perform texture mapping. Briefly discuss the two different pixel sampling methods, nearest and bilinear.</strong> </br></br>
+In this task, I implemented the following pixel sampling methods that are selectable with keyboard commands. Both of these sampling methods used barycentric coordinates to interpolate the texture onto the triangles.</li>
+<li>nearest neighbor sampling - we simply look up the color of the texel that is closest to the center of the pixel being rendered. Here is the implementation:
+```cpp
+Color Texture::sample_nearest(Vector2D uv, int level) {</li>
+</ul>
+<p>// implement nearest neighbor sampling
+// map the Color to whatever it is in the texture coordinates
+auto&amp; mip = mipmap[level];
+uv.x <em>= (mip.width-1);
+uv.y </em>= (mip.height-1);</p>
+<p>return mip.get_texel(uv.x, uv.y);</p>
+<p>}</p>
+<pre><code>
+<span class="hljs-number">2.</span> bilinear sampling - here, we look up the colors of the four nearest texels instead, and then blend these colors together <span class="hljs-keyword">using</span> a weighted average. Here is the implementation:
+```cpp
+Color Texture::sample_bilinear(Vector2D uv, <span class="hljs-keyword">int</span> level) {
+
+<span class="hljs-keyword">auto</span>&amp; mip = mipmap[level];
+<span class="hljs-comment">// zero-th level here</span>
+<span class="hljs-comment">// map the Color to whatever it is in the texture coordinates</span>
+
+<span class="hljs-keyword">float</span> x = uv.x * (mip.width - <span class="hljs-number">1</span>);
+<span class="hljs-keyword">float</span> y = uv.y * (mip.height - <span class="hljs-number">1</span>);
+<span class="hljs-keyword">float</span> x_frac = x - <span class="hljs-built_in">floor</span>(x); <span class="hljs-comment">// fractional offsets s and t (from the slides)</span>
+<span class="hljs-keyword">float</span> y_frac = y - <span class="hljs-built_in">floor</span>(y);
+
+Color c1 = mip.get_texel(<span class="hljs-built_in">floor</span>(x), <span class="hljs-built_in">floor</span>(y));
+Color c2 = mip.get_texel(<span class="hljs-built_in">floor</span>(x), <span class="hljs-built_in">ceil</span>(y));
+Color c3 = mip.get_texel(<span class="hljs-built_in">ceil</span>(x), <span class="hljs-built_in">ceil</span>(y));
+Color c4 = mip.get_texel(<span class="hljs-built_in">ceil</span>(x), <span class="hljs-built_in">floor</span>(y));
+
+Color c12 = c1 + x_frac*(c4 + (<span class="hljs-number">-1</span>*c1));
+Color c34 = c2 + x_frac*(c3 + (<span class="hljs-number">-1</span>*c2));
+
+Color c1234 = c12 + y_frac*(c34 + (<span class="hljs-number">-1</span>*c12));
+<span class="hljs-keyword">return</span> c1234;
+}
+</code></pre><ul>
+<li><strong>Check out the svg files in the svg/texmap/ directory. Use the pixel inspector to find a good example of where bilinear sampling clearly defeats nearest sampling. Show and compare four png screenshots using nearest sampling at 1 sample per pixel, nearest sampling at 16 samples per pixel, bilinear sampling at 1 sample per pixel, and bilinear sampling at 16 samples per pixel.</strong></br></br></li>
+</ul>
+<p>Nearest samling at 1 sample per pixel:
+<img src="screenshots/globe_nearest_1.png" alt=""></p>
+<p>Bilinear samling at 1 sample per pixel:
+<img src="screenshots/globe_bilinear_1.png" alt=""></p>
+<p>Nearest samling at 16 samples per pixel:
+<img src="screenshots/globe_nearest_16.png" alt=""></p>
+<p>Bilinear samling at 16 samples per pixel:
+<img src="screenshots/globe_bilinear_16.png" alt=""></p>
+<p>The comparison of these images are below:</p>
+<ul>
+<li><strong>Comment on the relative differences. Discuss when there will be a large difference between the two methods and why.</strong></br></br>
+<code>Analysis: I chose this image for the analysis because it demonstrates that latitude lines are intermittent with nearest sampling, but it gets smoother with bilinear sampling. Unfortunately, I couldn&#39;t figure out why the image is fading away at 16 samples per pixel (because supersampling averaging worked all well with all the other tasks). I would imagine that all the other images have more or less constant colors in the images (like solid blue triangles and solid red tiled flowers), so the averaging of those yields the same color. In this image, however, the colors are changing very rapidly, so when you sum everything up and divide by the sample rate, you get something close to white color.</code></li>
+</ul>
+<p>---- </br></br></p>
+<h3 id="task-6-25-pts-">Task 6 (25 pts)</h3>
+<ul>
+<li><p><strong>Explain level sampling in your own words and describe how you implemented it for texture mapping.</strong></br></br>
+Level sampling is the process of selecting an appropriate mipmap level for a pixel, based on the level of detail with which we want to render (usually based on size and distance from the viewer).  We pick between different level sampling variations by pressing different keystrokes (as defined in <code>Texture::sample()</code> function):</p>
+<pre><code class="lang-cpp">Color Texture::sample(<span class="hljs-keyword">const</span> SampleParams&amp; sp) {
+
+  <span class="hljs-comment">// get the level of the mipmap</span>
+  <span class="hljs-comment">// sample the texture at that level</span>
+  <span class="hljs-comment">// return the color</span>
+
+  <span class="hljs-keyword">if</span> (sp.lsm == L_ZERO) {
+      <span class="hljs-keyword">return</span> sample_nearest(sp.p_uv, <span class="hljs-number">0</span>);
+  }
+
+  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (sp.lsm == L_NEAREST) {
+      <span class="hljs-keyword">return</span> sample_nearest(sp.p_uv, get_level(sp));
+  }
+
+  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (sp.lsm == L_LINEAR) {
+
+      <span class="hljs-keyword">float</span> level = get_level(sp);
+      <span class="hljs-keyword">float</span> level_frac = level - <span class="hljs-built_in">floor</span>(level);
+      Color c1 = sample_bilinear(sp.p_uv, <span class="hljs-built_in">floor</span>(level));
+      Color c2 = sample_bilinear(sp.p_uv, <span class="hljs-built_in">ceil</span>(level));
+      Color c12 = c1 + level_frac*(c2 + (<span class="hljs-number">-1</span>*c1));
+      <span class="hljs-keyword">return</span> c12;
+  }
+
+  <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">return</span> Color(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+  }
+}
+</code></pre>
+</li>
+</ul>
+<p>for texture mapping, you compute a mipmap level:</p>
+<pre><code class="lang-cpp">    <span class="hljs-keyword">float</span> Texture::get_level(<span class="hljs-keyword">const</span> SampleParams&amp; sp) {
+    <span class="hljs-comment">//Calculate the difference vectors sp.p_dx_uv - sp.p_uv and sp.p_dy_uv - sp.p_uv inside Texture::get_level, and finally </span>
+    Vector2D duv_dx = sp.p_dx_uv - sp.p_uv;
+    Vector2D duv_dy = sp.p_dy_uv - sp.p_uv;
+
+    <span class="hljs-comment">//Scale up the difference vectors accordingly by the width and height of the full-resolution texture image.</span>
+    duv_dx.x *= <span class="hljs-built_in">width</span>;
+    duv_dx.y *= <span class="hljs-built_in">height</span>;
+    duv_dy.x *= <span class="hljs-built_in">width</span>;
+    duv_dy.y *= <span class="hljs-built_in">height</span>;
+
+    <span class="hljs-comment">// compute the level of the mipmap</span>
+    <span class="hljs-comment">// sqrt(dudx^2 + dvdx^2) + sqrt(dudy^2 + dvdy^2)</span>
+    <span class="hljs-comment">// based on the slides</span>
+
+    <span class="hljs-keyword">float</span> L = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">sqrt</span>(duv_dx.norm2()), <span class="hljs-built_in">sqrt</span>(duv_dy.norm2()));
+    <span class="hljs-keyword">float</span> D = log2(L);
+    cout &lt;&lt; D &lt;&lt; endl;
+    <span class="hljs-built_in">return</span> D;
+}
+</code></pre>
+<ul>
+<li><strong>You can now adjust your sampling technique by selecting pixel sampling, level sampling, or the number of samples per pixel. Describe the tradeoffs between speed, memory usage, and antialiasing power between the three various techniques.</strong></br></br></li>
+<li>pixel sampling: <ul>
+<li>bilinear sampling is better at antialiasing because it has a more sophisticated algorithm</li>
+<li>about same amount of memory</li>
+<li>nearest neighbor sampling is faster because requires less computation</li>
+</ul>
+</li>
+<li>level sampling:<ul>
+<li>antialiasing is better when you sample more</li>
+<li>reduces the memory usage because you don&#39;t need to store more than required</li>
+<li>speed increases with level sampling because you can skip rendering distant objects</li>
+</ul>
+</li>
+<li><p>increasing number of samples per pixel:</p>
+<ul>
+<li>improves the antialiasing quality by reducing jaggies =&gt; smoother image</li>
+<li>significantly increases the memory usage because all these supersamples need to be stored somewhere</li>
+<li>speed slows down because the process is very computationally intensive</li>
+</ul>
+</li>
+<li><p><strong>Using a png file you find yourself, show us four versions of the image, using the combinations of L_ZERO and P_NEAREST, L_ZERO and P_LINEAR, L_NEAREST and P_NEAREST, as well as L_NEAREST and P_LINEAR.</strong></br></br></p>
+<ul>
+<li><p>To use your own png, make a copy of one of the existing svg files in svg/texmap/ (or create your own modelled after one of the provided svg files). Then, near the top of the file, change the texture filename to point to your own png. From there, you can run ./draw and pass in that svg file to render it and then save a screenshot of your results.</p>
+</li>
+<li><p>Note: Choose a png that showcases the different sampling effects well. You may also want to zoom in/out, use the pixel inspector, etc. to demonstrate the differences.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="github-pages-link">Github pages link</h3>
+<p><a href="https://ingazhur.github.io/proj-webpage-template/">https://ingazhur.github.io/proj-webpage-template/</a></p>
+
 	</body>
 </html>
