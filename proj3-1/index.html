@@ -44,7 +44,7 @@
 <h2 align="middle">Inga Zhuravleva</h2>
 
 <!-- Add Website URL -->
-<h2 align="middle">Website URL: <a href="TODO">TODO</a></h2>
+<h2 align="middle">Website URL: <a href="https://cal-cs184-student.github.io/project-webpages-sp23-ingazhur/proj3-1/i">HERE</a></h2>
 
 <br><br>
 
@@ -63,7 +63,13 @@
 
 <h2 align="middle">Overview</h2>
 <p>
-    This project 
+    This project covers ray tracing. First, we consider how to generate rays and cast them to produce images. Then, we explore
+    how rays intersect with triangles and spheres. While after completing this, we get image renders, they take long to generate
+    and do not look very realistic. To solve this, we implement a bounding volume hierarchy to speed up by reducing the number of
+    unnecessary intersections. Then, we explore implementation of direct and indirect lighting to create more realistic images
+    by tracing rays from the light source and from the camera. Having more samples per pixel makes images more high quality, but
+    this comes with a cost of longer render times. Finally, we implemented adaptive sampling to reduce the number of samples
+    per pixel for areas that converge quickly.
 </p>
 <br>
 
@@ -89,7 +95,7 @@ Show images with normal shading for a few small .dae files. -->
   Explain the triangle intersection algorithm you implemented in your own words.
 </h3>
 <p>
-    In my implementation of this part, I used the Moller-Trumbore algorithm. It works by determining if the ray 
+    In my implementation of this part, I used the Moller-Trumbore algorithm. It works by determining if the ray
     intersects with the triangle, and then it checks whether the intersection point lies within the bounds of the triangle
     by computing the barycentric coordinates of the intersection point. I used the formula from the (<a href = "https://cs184.eecs.berkeley.edu/sp23/lecture/9-22/intro-to-ray-tracing-and-acceler">lecture slides</a>) for this part.
 </p>
@@ -138,9 +144,9 @@ Compare rendering times on a few scenes with moderately complex geometries with 
   Walk through your BVH construction algorithm. Explain the heuristic you chose for picking the splitting point.
 </h3>
 <p>
-    We are incorporating BVH in our project to speed up the rendering of complex figures. The BVH is constructed recursively - 
+    We are incorporating BVH in our project to speed up the rendering of complex figures. The BVH is constructed recursively -
     the root node is the bounding box that contains all the triangles in the scene, and then the triangles are split into two
-    groups based on the longest axis of the bounding box. At first, the function computes the bounding box of all the primitives in the input range from 
+    groups based on the longest axis of the bounding box. At first, the function computes the bounding box of all the primitives in the input range from
     start to end, and then, if the number of the primitives is less than the maximum leaf size, then it returns that leaf node. Otherwise,
     it proceeds to split the primitives along the largest axis. The splitting point is found using centroids that are sorted in an array.
     We recursively call the function on the left and right sides of the split to cover all the primitives.
@@ -203,8 +209,8 @@ Compare the results between uniform hemisphere sampling and lighting sampling in
     In this part, I had to implement two different functions for direct lighting: uniform sphere sampling and importance light sampling.
     <br><br>
     <b>Uniform Sphere Sampling</b>: in this function, we loop through the number of samples, sample them uniformly on the sphere, and then
-    check if the are any intersections between the ray and the sampling point. 
-    If there is an intersection, then we add the contribution of the light to the color of the pixel. That contribution is computer by 
+    check if the are any intersections between the ray and the sampling point.
+    If there is an intersection, then we add the contribution of the light to the color of the pixel. That contribution is computer by
     Monte Carlo estimator: <code>L_out += emission * isect.bsdf->f(w_out, w_in) * cos / (PI);</code>, where hit_p is the hit point of the ray,
     w_out and w_in are the incoming and outcoming rays, and cos is the cosine of the angle between the normal and the incoming ray.
     <br><br>
@@ -299,8 +305,8 @@ All of the images below were rendered with the following parameters: <code>./pat
   Compare the results between uniform hemisphere sampling and lighting sampling in a one-paragraph analysis.
 </h3>
 <p>
-    Comparing the uniform hemisphere sampling and lighting sampling, we can say that the lighting sampling is much better visually because of the smoother image. 
-    This happpens because the lighting sampling samples the light directly, so it has a more accurate representation. Whereas the uniform hemisphere sampling samples the light indirectly. 
+    Comparing the uniform hemisphere sampling and lighting sampling, we can say that the lighting sampling is much better visually because of the smoother image.
+    This happpens because the lighting sampling samples the light directly, so it has a more accurate representation. Whereas the uniform hemisphere sampling samples the light indirectly.
 <br>
 
 <p style="page-break-after: always;">&nbsp;</p>
@@ -321,7 +327,7 @@ You will probably want to use the instructional machines for the above renders i
 <p>
   This task is centered around the indirect light sampling and global illumination, and the bulk of the Task is inside the <code>PathTracer::at_least_one_bounce_radiance</code> function.
   At a high level, we want to understand the next location of the ray, and then we want to sample the light at that location (which leads to a recursive nature of the function).
-  `max_ray_depth` parameter sets a limit on how many times we can recurse, and Russian Roulette is used to terminate the recursion early (based on the termination probability parameter which is set to 0.3 in my case). 
+  `max_ray_depth` parameter sets a limit on how many times we can recurse, and Russian Roulette is used to terminate the recursion early (based on the termination probability parameter which is set to 0.3 in my case).
 </p>
 <br>
 
@@ -329,7 +335,7 @@ You will probably want to use the instructional machines for the above renders i
   Show some images rendered with global (direct and indirect) illumination. Use 1024 samples per pixel.
 </h3>
 <p>
-  These images were generated by running <code>./pathtracer -t 16 -s 1024 -l 4 -m 3 -f bunny.png -r 480 360 ../dae/sky/CBbunny.dae</code>. 
+  These images were generated by running <code>./pathtracer -t 16 -s 1024 -l 4 -m 3 -f bunny.png -r 480 360 ../dae/sky/CBbunny.dae</code>.
 </p>
 <!-- Example of including multiple figures -->
 <div align="middle">
@@ -409,9 +415,9 @@ You will probably want to use the instructional machines for the above renders i
 </div>
 <br>
 <p>
-    All of these images were rendered with 1024 rays per pixel and 4 samples per area light. Maximum number of 
+    All of these images were rendered with 1024 rays per pixel and 4 samples per area light. Maximum number of
     ray depth varied from 0 to 100. Here, we can see that the very first scenario where m = 0, is actually equaivalent
-    to zero_bounce_radiance, so we can only see the lights on the ceiling. Scenario when m = 1 corresponds to displaying only 
+    to zero_bounce_radiance, so we can only see the lights on the ceiling. Scenario when m = 1 corresponds to displaying only
     direct illumination, similar to the part above. As we increase the value of m, we can see that the indirect illumination
     is added to the scene, but there is not much difference between m = 3 and m = 100, for example.
 </p>
@@ -457,7 +463,7 @@ You will probably want to use the instructional machines for the above renders i
 </div>
 <br>
 <p>
-    We can generally see that increasing the number of samples per pixel makes some positive impact in the image quality. Here, sample rate of 64 yields significantly 
+    We can generally see that increasing the number of samples per pixel makes some positive impact in the image quality. Here, sample rate of 64 yields significantly
     better quality image compared to 1 sample per pixel. However, the rendering speed decreases as we add more samples.
 </p>
 <br>
@@ -475,7 +481,7 @@ Pick one scene and render it with at least 2048 samples per pixel. Show a good s
 </h3>
 <p>
     Adaptive sampling optimizes the sampling process by increasing sampling of the pixels that take long to converge.
-    As we loop through the pixels, we first compute the mean and standard deviation of the pixel. Then, we check 
+    As we loop through the pixels, we first compute the mean and standard deviation of the pixel. Then, we check
     if the pixel has converged or not by seeing if the standard deviation is less than the threshold. If it has not converged,
     we continue the sampling. In the end, we save the number of samples for each pixel in a buffer.
     We define <code>I = 1.96 * σ / sqrt(n)</code>, and our goal is to check if <code>I ≤ maxTolerance⋅μ</code>. If it is, then the pixel converged and we stop sampling.
@@ -488,7 +494,7 @@ Pick one scene and render it with at least 2048 samples per pixel. Show a good s
 </h3>
 <p>The following images have been generated with these settings: <br><code>./pathtracer -t 8 -s 2048 -a 64 0.05 -l 1 -m 5 -r 480 360 -f filename.png ../dae/sky/filename.dae</code>
 <br><br> This did not work so well, and I think it has something to do with the fact that my global illumination was noisy in general, and there were too many
-shadows on the spheres. For example, the light on the ceiling should have definitely converged very fast, but the color of the light on 
+shadows on the spheres. For example, the light on the ceiling should have definitely converged very fast, but the color of the light on
 the sample rate image is pretty bright.
 </p>
 <!-- Example of including multiple figures -->
