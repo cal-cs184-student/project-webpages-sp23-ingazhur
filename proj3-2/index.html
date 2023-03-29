@@ -1,7 +1,244 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 3-2 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<style>
+	body {
+	  background-color: white;
+	  padding: 100px;
+	  width: 1000px;
+	  margin: auto;
+	  text-align: left;
+	  font-weight: 300;
+	  font-family: 'Open Sans', sans-serif;
+	  color: #121212;
+	}
+	h1, h2, h3, h4 {
+	  font-family: 'Source Sans Pro', sans-serif;
+	}
+	kbd {
+	  color: #121212;
+	}
+  </style>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+<title>Inga Zhuravleva  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<script>
+	MathJax = {
+	  tex: {
+		inlineMath: [['$', '$'], ['\\(', '\\)']]
+	  }
+	};
+  </script>
+  <script id="MathJax-script" async
+	src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  </script>
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 3-2: Additional Features to PathTracer</h1>
+    <h2 align="middle">Inga Zhuravleva: Spring 2023</h2>
+    <h2 align="middle">(Webpage URL)</h2>
+
+    <div class="padded">
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+					<img src="images/part1/spheres512_8_100.png" align="middle" width="400px"/>
+					<figcaption>Part 1: mirror and glass spheres</figcaption>
+				  </td>
+				<td>
+				  <img src="images/part2/important_bunny_cu.png" align="middle" width="400px"/>
+				  <figcaption>Part 2: copper bunny with importance sampling</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		  
+		  <div>
+		  
+		  <h2 align="middle">Overview</h2>
+		  <p>
+			In this project, I have implemented an extension to the pathtracer project that renders
+			glass/mirror materials (Part 1) and microfacet materials (Part 2). More specific overviews of each part
+			are provided under each section.
+		  </p>
+		  <br>
+
+        <h2 align="middle">Part 1. Mirror and Glass Materials</h3>
+		<h3><b>
+            **Overview
+        </b></h3>
+		<p>
+			In this part, I have implemented the rendering of the mirror and glass materials. To generate mirror surfaces (shown on the left sphere),
+			I first wrote the code for reflection of w_o about the surface normal. Then, using spherical equations and Snell's law, I've calculated the 
+			refracted ray direction, making sure to update `eta` based on the direction of wo and check if the total internal reflection occurs.
+			<br>
+			Then, to render the glass sphere (shown on the right), I have used Schlick's approximation to calculate the Fresnel term, using the 
+			preudocode from the specs.
+
+		</p>
+
+        <h3><b>
+            **Show a sequence of six images of scene `CBspheres.dae` rendered with `max_ray_depth` set to 0, 1, 2, 3, 4, 5, and 100. The other settings should be at least 64 samples per pixel and 4 samples per light. Make sure to include all screenshots.
+        </b></h3>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part1/spheres512_8_0.png" align="middle" width="400px"/>
+				  <figcaption>-s 512 -l 8 -m 0</figcaption>
+				</td>
+				<td>
+				  <img src="images/part1/spheres512_8_1.png" align="middle" width="400px"/>
+				  <figcaption>-s 512 -l 8 -m 1</figcaption>
+				</td>
+			  </tr>
+			  <tr align="center">
+				<td>
+					<img src="images/part1/spheres512_8_2.png" align="middle" width="400px"/>
+					<figcaption>-s 512 -l 8 -m 2</figcaption>
+				</td>
+				<td>
+				  <img src="images/part1/spheres512_8_3.png" align="middle" width="400px"/>
+				  <figcaption>-s 512 -l 8 -m 3</figcaption>
+				</td>
+			  </tr>
+			  <tr align="center">
+				<td>
+					<img src="images/part1/spheres512_8_4.png" align="middle" width="400px"/>
+					<figcaption>-s 512 -l 8 -m 4</figcaption>
+				  </td>
+				<td>
+				  <img src="images/part1/spheres512_8_5.png" align="middle" width="400px"/>
+				  <figcaption>-s 512 -l 8 -m 5</figcaption>
+				</td>
+			  </tr>
+			  <tr align="center">
+				<td>
+					<img src="images/part1/spheres512_8_100.png" align="middle" width="400px"/>
+					<figcaption>-s 512 -l 8 -m 100</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+        <br>
+        <h3><b>
+            **Point out the new multibounce effects that appear in each image. 
+        </b></h3>
+		<h3><b>
+            **Explain how these bounce numbers relate to the particular effects that appear. Make sure to include all screenshots.
+        </b></h3>
+        <li>m = 0: here, we can only see the light coming from the ceiling. The spheres don't show up because we explicitly set zero bounces in the render settings.</li> <br>
+		<li>m = 1: here, the room is illumicated, but the spheres are mostly black. On the left and right sphere, we can see only reflection from one area (top surface), which corresponds to the one bounce from the light source.</li><br>
+		<li>m = 2: here, we can see that the mirror material on the left sphere is visible, but the glass material on the right sphere still needs more bounces to get rendered properly.</li><br>
+		<li>m = 3: here, both left and right spheres are visible and display their materials more or less accurately. The right sphere started to refract the light from the light source onto the floor. The left sphere, however, still shows the reflection of the right sphere from the past. </li><br>
+		<li>m = 4: here, as we have more rays bouncing off the surfaces, the entire room is more lit up. Also, the left sphere shows the updated reflection of the right sphere. The right sphere refracts more light onto the floor, and we now can see a spot of light on the wall.</li><br>
+		<li>m = 5: here, not much difference between this image and the previous one, except that the entire image is more bright, and there is more white noise all around.</li><br>
+		<li>m = 100: despite a huge jump in the maximum ray depth allowed, this image is not much different from m = 5 setting. This image is just more bright.</li>
+        
+        <br>
+
+
+        <h2 align="middle">Part 2. Microfacet Material</h1>
+		<h3><b>
+			**Overview
+		</b></h3>
+		<p>
+			In this part, I have implemented the renders of the microfacet materials, which allowed me to generate images of bunnies and dragons 
+			with different roughness coefficients and different conductor surface materials. In order to do that, I first computed the Normal Distribution Function (NDF) that 
+			adopts Beckmann distribution. Then, I computed the Fresnel term using approximations from the specs. For each material, I had to find specific
+			values for eta and k corresponding to three fixed wavelenghts (614 nm, 549 nm, and 466 nm). After getting F, G, and D terms, I have implemented
+			the Microfacet BRDF function. Finally, in order for the images to look more realistic, I had to replace the cosine hemisphere sampling
+			(that works only for diffuse materials) to the importance sampling.
+		</p>
+        <h3><b>
+            **Show a screenshot sequence of 4 images of scene `CBdragon_microfacet_au.dae` rendered with $\alpha$ set to 0.005, 0.05, 0.25 and 0.5. The other settings should be at least 128 samples per pixel and 1 samples per light. The number of bounces should be at least 5. Describe the differences between different images. Note that, to change the $\alpha$, just open the .dae file and search for `microfacet`.
+        </b></h3>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part2/dragon005.png" align="middle" width="400px"/>
+				  <figcaption>$\alpha$ = 0.005, -s 256 -l 4 -m 7</figcaption>
+				</td>
+				<td>
+				  <img src="images/part2/dragon05.png" align="middle" width="400px"/>
+				  <figcaption>$\alpha$ = 0.05, -s 256 -l 4 -m 7</figcaption>
+				</td>
+			  </tr>
+			  <tr align="center">
+				<td>
+					<img src="images/part2/dragon25.png" align="middle" width="400px"/>
+					<figcaption>$\alpha$ = 0.25, -s 256 -l 4 -m 7</figcaption>
+				</td>
+				<td>
+				  <img src="images/part2/dragon5.png" align="middle" width="400px"/>
+				  <figcaption>$\alpha$ = 0.5, -s 256 -l 4 -m 7</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+        <p>
+            The parameter $\alpha$ controls the roughness of the surface. 
+			The smaller the value, the smoother the surface, which we can see on the first image ($\alpha$ = 0.005). 
+			There, the material is also much glossier/specular, which causes more noise appears on the render.
+			On the contrary, rough surfaces ($\alpha$ = 0.5) generate almost noise-free images.
+        </p>
+        <br>
+        <h3><b>
+            **Show two images of scene `CBbunny_microfacet_cu.dae` rendered using cosine hemisphere sampling (default) and your importance sampling. The sampling rate should be fixed at 64 samples per pixel and 1 samples per light. The number of bounces should be at least 5. Briefly discuss their difference.
+        </b></h3>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+					<img src="images/part2/not_important_bunny_cu.png" align="middle" width="400px"/>
+					<figcaption>cosine hemisphere sampling, -s 64 -l 1 -m 7</figcaption>
+				  </td>
+				<td>
+				  <img src="images/part2/important_bunny_cu.png" align="middle" width="400px"/>
+				  <figcaption>importance sampling, -s 64 -l 1 -m 7</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+        <p>
+            Here, we can see that the bunny rendered with importance sampling has a more realistic appearance. The cosine hemisphere
+			provides uniform sampling, so it works well for diffuse surfaces, but it does not work well for surfaces of the conductor materials.
+			The importance sampling is less noisy because it samples the areas of the surface that are more likely to have an impact on the image appearance.
+        </p>
+        <br>
+        <h3><b>
+            **Show at least one image with some other conductor material, replacing `eta` and `k`. Note that you should look up values for real data rather than modifying them arbitrarily. Tell us what kind of material your parameters correspond to. 
+        </b></h3>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part2/dragon25_fe.png" align="middle" width="800px"/>
+				  <figcaption>$\alpha$ = 0.25, material: Iron (Fe)</figcaption>
+				</td>
+			</table>
+		</div>
+        <p>
+            The above image of the dragon was generated with the conductor material parameters for Iron (Fe).
+			According to <a href="https://refractiveindex.info/">this website</a> with collection of refraction indices, the 
+			corresponding values for eta are (2.8851, 2.95, 2.65) and for k are (3.0449, 2.93, 2.8075).
+        </p>
+        <br>
+        
+
+    </div>
+</body>
 </html>
