@@ -1,7 +1,474 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 4 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<style>
+	body {
+	  background-color: white;
+	  padding: 100px;
+	  width: 1000px;
+	  margin: auto;
+	  text-align: left;
+	  font-weight: 300;
+	  font-family: 'Open Sans', sans-serif;
+	  color: #121212;
+	}
+	h1, h2, h3, h4 {
+	  font-family: 'Source Sans Pro', sans-serif;
+	}
+	kbd {
+	  color: #121212;
+	}
+  </style>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+<title>Inga Zhuravleva  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<script>
+	MathJax = {
+	  tex: {
+		inlineMath: [['$', '$'], ['\\(', '\\)']]
+	  }
+	};
+  </script>
+  <script id="MathJax-script" async
+	src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  </script>
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 4: Cloth Sim</h1>
+    <h2 align="middle">Inga Zhuravleva: Spring 2023</h2>
+    <h2 align="middle">Website URL: <a href="https://cal-cs184-student.github.io/project-webpages-sp23-ingazhur/proj4/">HERE</a></h2>
+		  
+		  <div>
+		  
+		  <h2 align="middle">Overview</h2>
+		  <p>
+			In this project, I've implemented a cloth simulator using mass-spring systems. 
+			The cloth is represented as a grid of point masses connected by springs, and I got started with creating 
+			a grid of point masses and different types of springs (structural, shearing, bending). 
+			I used Verlet integration to update the positions of the masses to create a realistic movement of falling cloth,
+			where I also covered the cases for collision with objects and self-collision.
+			Next, I've experimented with creating different types of shaders (blinn-phong, texture mapping, bump mapping, etc.)
+			to create a realistic look of the sphere and the cloth in the simulation.
+		  </p>
+		  <br>
+
+        <h2 align="middle">Part 1. Masses and springs</h3>
+
+        <p>In this part, I've worked on creating an evenly spaced out grid of point masses and springs (structural, shearing, bending).
+			Depending on the orientation of the cloth (horizontal or vertical), the grid is created differently. For example, in order to
+			create a horizontal grid, I needed to set the y-value for each point mass to 1.0, while varying the x and z coordinates.
+			Here, I am also checking whether the point is pinned because if it is, we don't want to update its position during motion. </p>
+			The screenshot below shows the wireframe from scene/pinned2.json. </p>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+					<img src="images/part1/everything1.png" align="middle" width="400px"/>
+					<figcaption>scene/pinned.json</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+    <br>
+    <p> The GUI provides a settings interface that allows you to check which types of springs to present. Below, here are 
+		the screenshots of how the grid looks like with only one type of springs represented. </p>
+    <br>
+    <div align="middle">
+      <table style="width:100%">
+        <tr align="center">
+        <td>
+          <img src="images/part1/no_shearing.png" align="middle" width="700px"/>
+          <figcaption>without shearing</figcaption>
+        </td>
+        </tr>
+        <tr align="center">
+          <td>
+            <img src="images/part1/just_shearing.png" align="middle" width="700px"/>
+            <figcaption>just shearing</figcaption>
+          </td>
+          </tr>
+        <tr align="center">
+          <td>
+            <img src="images/part1/everything2.png" align="middle" width="700px"/>
+            <figcaption>with all constraints</figcaption>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+		<p style="page-break-after: always;">&nbsp;</p>
+		<p style="page-break-before: always;">&nbsp;</p>
+
+
+        <h2 align="middle">Part 2. Simulation via numerical integration</h1>
+		<p>In this part, I've worked on making the cloth move by incorporating the physical equations of motion to see
+			how the cloth moves one time step at a time. At first, I've computed total force acting on each point mass by
+			iterating over all the points and applying the force based on the external accelerations (gravity) and the
+			internal forces (structural, shearing, and bending springs). Then, I've used Verlet integration to update the positions of the
+			point masses. I've used the classic derivation, where the next position is equal to the current position, 
+			plus (1−d)∗(delta_x) + a_​t∗dt^​2. Finally, I've made an adjustment to make sure that the spring length is at most 10% greater than its original rest length.
+			Damping and spring constant terms can be adjusted within the GUI. </p>
+
+		</p>
+        <h3 align="middle"><b>
+            Varying spring constant (ks)
+        </b></h3>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part2/ks50.png" align="middle" width="350px"/>
+				  <figcaption>ks = 50 N/m</figcaption>
+				</td>
+				<td>
+				  <img src="images/part2/ks5000.png" align="middle" width="350px"/>
+				  <figcaption>ks = 5000 N/m (default)</figcaption>
+				</td>
+				<td>
+					<img src="images/part2/ks50000.png" align="middle" width="350px"/>
+					<figcaption>ks = 50000 N/m</figcaption>
+				  </td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			On the images above, we can see that with relatively low spring constant (ks = 50 N/m), the cloth is very loose and doesn't
+			hold its shape that well, compared to higher values. This is because the spring constant determines how much
+			force is applied to the cloth when it is stretched or compressed. As another example, we can see that the cloth
+			with ks = 50000 N/m doesn't deform as much.
+        </p>
+		<br>
+		<h3 align="middle"><b>
+            Varying density
+        </b></h3>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part2/density1.png" align="middle" width="350px"/>
+				  <figcaption>density = 1 g/cm^3</figcaption>
+				</td>
+				<td>
+				  <img src="images/part2/density15.png" align="middle" width="350px"/>
+				  <figcaption>density = 15 g/cm^3 (default)</figcaption>
+				</td>
+				<td>
+					<img src="images/part2/density150.png" align="middle" width="350px"/>
+					<figcaption>density = 150 g/cm^3</figcaption>
+				  </td>
+			  </tr>
+			</table>
+		</div>
+        <p>
+            Here, we can see that the cloth with lower density (1 g/cm^3) doesn't deform too much because
+			the mass of each point is lower, so there is not much force applied to it. On the other hand, the cloth
+			on the very right, has great mass, so we expect more deformation.
+        </p>
+        <br>
+		<br>
+		<h3 align="middle"><b>
+            Varying damping
+        </b></h3>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part2/damping006.png" align="middle" width="350px"/>
+				  <figcaption>damping = 0.06</figcaption>
+				</td>
+				<td>
+				  <img src="images/part2/damping02.png" align="middle" width="350px"/>
+				  <figcaption>damping = 0.2</figcaption>
+				</td>
+				<td>
+					<img src="images/part2/damping08.png" align="middle" width="350px"/>
+					<figcaption>damping = 0.8</figcaption>
+				  </td>
+			  </tr>
+			</table>
+		</div>
+        <p>
+            Here, we can see that there is not much difference in the final result, but during the simulation,
+			the cloth with lower damping (0.06) was more unstable, while the cloth with greater damping (0.8) took 
+			much longer to come to rest.
+        </p>
+        <br>
+		<br>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part2/pinned4-diffuse.png" align="middle" width="700px"/>
+				  <figcaption>pinned4.json with diffuse shading from part 5</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p style="page-break-after: always;">&nbsp;</p>
+		<p style="page-break-before: always;">&nbsp;</p>
+
+		<h2 align="middle">Part 3. Handling collisions with other objects</h3>
+		<p>In this part, I've worked on the cases where the cloth might collide with other objects.
+			At first, I handled collisions with spheres by computing the tangent points and checking if the distance between the sphere and the cloth
+			point is less than the radius of the sphere. If it is, then we offset it a small margin and scale down by friction.
+			Similarly, I then handled the collisions with planes by checking the distance between the plane and the cloth
+			point.
+		</p>
+	
+		</p>
+
+		<div align="middle">
+			<table style="width:100%">
+			<tr align="center">
+				<td>
+					<img src="images/part3/ks500.png" align="middle" width="350px"/>
+					<figcaption>ks = 500 N/m</figcaption>
+				</td>
+				<td>
+					<img src="images/part3/ks5000.png" align="middle" width="350px"/>
+					<figcaption>ks = 5000 N/m (default)</figcaption>
+				</td>
+				<td>
+					<img src="images/part3/ks50000.png" align="middle" width="350px"/>
+					<figcaption>ks = 50000 N/m</figcaption>
+				</td>
+			</tr>
+			</table>
+		</div>
+		<p>
+            Here, we can see that the cloth with the lower spring constant is falling off the sphere more easily, whereas
+			the cloth with ks = 50000 N/m is almost rigid, and doesn't deform that much because the spring forces are larger.
+        </p>
+		<br>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part3/peaceful-cloth.png" align="middle" width="700px"/>
+				  <figcaption>peaceful cloth with texture shader from part 5</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p style="page-break-after: always;">&nbsp;</p>
+		<p style="page-break-before: always;">&nbsp;</p>
+
+		<h2 align="middle">Part 4. Handling self-collisions</h3>
+		<p>
+            Handling self-collisions is done similar to the way we handled collisions with other objects. To make the process faster than O(n^2),
+			I've implemented spatial hashing by building a hash table that maps 3D points to a list of point masses within a 3D box volume. The reasoning
+			behind using a spatial hashing is because it is reasonable to assume that the points on the cloth could collide 
+			only if they are close to each other. Therefore, we are making the program run faster by only checking the points that are within the 3D box.
+        </p>
+		<div align="middle">
+			<table style="width:100%">
+			<tr align="center">
+				<td>
+					<img src="images/part4/4.png" align="middle" width="350px"/>
+					<figcaption>initial stage (default settings)</figcaption>
+				</td>
+				<td>
+					<img src="images/part4/5.png" align="middle" width="350px"/>
+					<figcaption>middle stage (default settings)</figcaption>
+				</td>
+				<td>
+					<img src="images/part4/6.png" align="middle" width="350px"/>
+					<figcaption>final stage (default settings)</figcaption>
+				</td>
+			</tr>
+			</table>
+		</div>
+		<div align="middle">
+			<table style="width:100%">
+			<tr align="center">
+				<td>
+					<img src="images/part4/1.png" align="middle" width="350px"/>
+					<figcaption>initial stage</figcaption>
+				</td>
+				<td>
+					<img src="images/part4/2.png" align="middle" width="350px"/>
+					<figcaption>middle stage</figcaption>
+				</td>
+				<td>
+					<img src="images/part4/3.png" align="middle" width="350px"/>
+					<figcaption>final stage</figcaption>
+				</td>
+			</tr>
+			</table>
+		</div>
+		<p>
+            The above simulation ran with ks = 60000 N/m and density = 4 g/cm^3. I noticed that the cloth was more bouncy than usual because of the increased spring constant, so it formed more folds.
+			Smaller density also made the cloth appear more light.
+        </p>
+
+		<p style="page-break-after: always;">&nbsp;</p>
+		<p style="page-break-before: always;">&nbsp;</p>
+	
+		<h2 align="middle">Part 5. Shaders</h3>
+		<p>
+			In this part of the project, I've implemented different shaders - Blinn-Phong, Texture Mapping, Displacement and Bump Mapping, and Environment-mapped Reflections by writing GLSL instuctions for vertex and fragment shaders.
+		</p>
+		<p>
+            <b>**A shader program**</b> is a set of instructions for creating realistic-looking images by manipulating object's color,
+			texture, lighting, etc. Vertex shaders are used to transform the 3D objects onto the 2D screen space, while
+			the fragment shaders are used to compute the color of each pixel on the screen. They work together to create
+			the final image.
+        </p>
+		<br>
+		<h3 align="middle"><b>
+            Blinn-Phong shading
+        </b></h3>
+		<p>
+            <b>**Blinn-Phong shading**</b> is a shading model that computes the color of a pixel by combining the ambient, diffuse, and specular components. The resulting color 
+			is a combination of these components, scaled by appropriate coefficients ka, kd, and ks, which are used to control the intensity of each component.
+			<ul>
+				<li>The ambient component is the color of the object when it is not illuminated by any light sources. </li>
+				<li>The diffuse component is the color of the object when it is illuminated by a light source. </li>
+				<li>The specular component is the color of the object when it is illuminated by a light source and the light source is reflected off a shiny surface.</li>
+			</ul>
+        </p>
+		<div align="middle">
+			<table style="width:100%">
+			<tr align="center">
+				<td>
+					<img src="images/part5/ambient.png" align="middle" width="350px"/>
+					<figcaption>ambient component only</figcaption>
+				</td>
+				<td>
+					<img src="images/part5/diffuse.png" align="middle" width="350px"/>
+					<figcaption>diffuse component only</figcaption>
+				</td>
+				<td>
+					<img src="images/part5/specular.png" align="middle" width="350px"/>
+					<figcaption>specular component only</figcaption>
+				</td>
+			</tr>
+			</table>
+		</div>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part5/phong.png" align="middle" width="700px"/>
+				  <figcaption>resulting Blinn-Phong shading with ka = kd = ks = 1.0</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<br>
+		<h3 align="middle"><b>
+            Texture mapping
+        </b></h3>
+		<p>Texture mapping was implemented by simply sampling from the provided texture, and the two screenshots 
+			below show the result of texture mapping on the cloth using a custom texture.
+		</p>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part5/custom-texture1.png" align="middle" width="500px"/>
+				  <figcaption>custom texture initially</figcaption>
+				</td>
+				<td>
+					<img src="images/part5/custom-texture2.png" align="middle" width="500px"/>
+					<figcaption>custom texture at rest</figcaption>
+				  </td>
+			  </tr>
+			</table>
+		</div>
+		<br>
+		<h3 align="middle"><b>
+            Bump and displacement mapping
+        </b></h3>
+		<p>
+			To implement bump mapping, I needed to read the height map from the provided texture, and then compute the normal vector for each vertex.
+			Then, I used the normal vector to compute the color of each pixel using Blinn-Phong model, as before. 
+			Displacement mapping is similar, but it required modifications to the vertex shader, as well as the fragment shader. For the vertex shader, 
+			I had to displace the vertex positions in the direction of the original model space vertex normal scaled by the `u_height_scaling` variable.
+		</p>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part5/bump1.png" align="middle" width="350px"/>
+				  <figcaption>bump mapping on the cloth</figcaption>
+				</td>
+				<td>
+					<img src="images/part5/bump2.png" align="middle" width="350px"/>
+					<figcaption>bump mapping on the sphere</figcaption>
+				</td>
+				<td>
+					<img src="images/part5/bump3.png" align="middle" width="350px"/>
+					<figcaption>bump mapping at rest</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+            The images below show how the bump and displacement mapping are affected by the surface coarseness that is adjusted by
+			the program parameters. There is not much difference between the two for the bump mapping case, but the displacement mapping
+			shows that there are more bumps when the surface is coarser (at -o 128 -a 128). It is related to the fact that the displacement
+			mapping is more sensitive to the surface coarseness from the height map.
+        </p>
+		<div align="middle">
+			<table style="width:100%">
+				<tr align="center">
+				  <td>
+					<img src="images/part5/bump16.png" align="middle" width="500px"/>
+					<figcaption>bump mapping with -o 16 -a 16</figcaption>
+				  </td>
+				  <td>
+					  <img src="images/part5/bump128.png" align="middle" width="500px"/>
+					  <figcaption>bump mapping with -o 128 -a 128</figcaption>
+					</td>
+				</tr>
+				<tr align="center">
+					<td>
+					  <img src="images/part5/disp16.png" align="middle" width="500px"/>
+					  <figcaption>displacement mapping with -o 16 -a 16</figcaption>
+					</td>
+					<td>
+						<img src="images/part5/disp128.png" align="middle" width="500px"/>
+						<figcaption>displacement mapping with -o 128 -a 128</figcaption>
+					  </td>
+				  </tr>
+			</table>
+		</div>
+		<h3 align="middle"><b>
+            Environment-mapped reflections
+        </b></h3>
+		<p>
+            I've implemented environment-mapped reflections by using the provided environment map texture. I first calculate 
+			the outgoing eye-ray, and then reflect it across the surface normal. Finally, I sample the environment map texture.
+        </p>
+		<div align="middle">
+			<table style="width:100%">
+			  <tr align="center">
+				<td>
+				  <img src="images/part5/mirror1.png" align="middle" width="500px"/>
+				  <figcaption>mirror shader initially</figcaption>
+				</td>
+				<td>
+					<img src="images/part5/mirror2.png" align="middle" width="500px"/>
+					<figcaption>mirror shader at rest</figcaption>
+				  </td>
+			  </tr>
+			</table>
+		</div>
+
+    </div>
+</body>
 </html>
